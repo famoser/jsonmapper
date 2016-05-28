@@ -201,7 +201,6 @@ class JsonMapper
                 continue;
             }
 
-            //FIXME: check if type exists, give detailled error message if not
             if ($type === '') {
                 throw new JsonMapper_Exception(
                     'Empty type at property "'
