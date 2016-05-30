@@ -230,19 +230,21 @@ class JsonMapper
                 $array = $this->createInstance($type);
             }
 
+            $child = null;
             if ($array !== null) {
                 if (!is_array($jvalue) && $this->isFlatType(gettype($jvalue))) {
-                    throw new JsonMapper_Exception(
-                        'JSON property "' . $key . '" must be an array, '
-                        . gettype($jvalue) . ' given'
-                    );
+                    if (!$allowNullValues)
+                        throw new JsonMapper_Exception(
+                            'JSON property "' . $key . '" must be an array, '
+                            . gettype($jvalue) . ' given'
+                        );
+                } else {
+                    $cleanSubtype = $this->removeNullable($subtype);
+                    if (!$this->isSimpleType($cleanSubtype)) {
+                        $subtype = $this->getFullNamespace($cleanSubtype, $strNs);
+                    }
+                    $child = $this->mapArray($jvalue, $array, $subtype);
                 }
-
-                $cleanSubtype = $this->removeNullable($subtype);
-                if (!$this->isSimpleType($cleanSubtype)) {
-                    $subtype = $this->getFullNamespace($cleanSubtype, $strNs);
-                }
-                $child = $this->mapArray($jvalue, $array, $subtype);
             } else if ($this->isFlatType(gettype($jvalue))) {
                 //use constructor parameter if we have a class
                 // but only a flat type (i.e. string, int)
